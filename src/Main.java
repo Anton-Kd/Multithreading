@@ -10,8 +10,8 @@ public class Main {
             texts[i] = generateText("aab", 30_000);
         }
         List<Future<String>> futures = new ArrayList<>();
-        Callable<String> myCallable = null;
-        Future<String> task = null;
+        Callable<String> myCallable;
+        Future<String> task;
         long startTs = System.currentTimeMillis(); // start time
 
         for (String text : texts) {
