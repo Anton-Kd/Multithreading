@@ -36,7 +36,6 @@ public class Main {
                     }
                 }
                 return (text.substring(0, 100) + " -> " + maxSize);
-
             };
 //        В цикле отправьте в пул потоков задачи на исполнение,
 //        получив в ответ на каждую отправку Future, которые войдут в список.
@@ -57,7 +56,7 @@ public class Main {
                 number = currentNumber;
             }
         }
-        System.out.printf("Максимальноу число повтрений <а> %d раз\n", number);
+        System.out.printf("Максимальное число повторений <а> %d раз\n", number);
 
         long endTs = System.currentTimeMillis(); // end time
         System.out.println("Time: " + (endTs - startTs) + "ms");
