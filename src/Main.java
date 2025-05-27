@@ -1,19 +1,22 @@
 import java.util.*;
+import java.util.concurrent.*;
 
 public class Main {
+    static final ExecutorService threadPool = Executors.newFixedThreadPool(4);
 
-    public static void main(String[] args) throws InterruptedException {
+    public static void main(String[] args) throws InterruptedException, ExecutionException {
         String[] texts = new String[25];
         for (int i = 0; i < texts.length; i++) {
             texts[i] = generateText("aab", 30_000);
         }
-        List<Thread> threads = new ArrayList<>();
-
+        List<Future<String>> futures = new ArrayList<>();
+        Callable<String> myCallable = null;
+        Future<String> task = null;
         long startTs = System.currentTimeMillis(); // start time
 
         for (String text : texts) {
 
-            Runnable logic = () -> {
+            myCallable = () -> {
                 int maxSize = 0;
                 for (int i = 0; i < text.length(); i++) {
                     for (int j = 0; j < text.length(); j++) {
@@ -32,14 +35,30 @@ public class Main {
                         }
                     }
                 }
-                System.out.println(text.substring(0, 100) + " -> " + maxSize);
+                return (text.substring(0, 100) + " -> " + maxSize);
+
             };
-            threads.add(new Thread(logic));
+//        В цикле отправьте в пул потоков задачи на исполнение,
+//        получив в ответ на каждую отправку Future, которые войдут в список.
+            task = threadPool.submit(myCallable);
+            futures.add(task);
         }
-        threads.forEach(Thread::start);
-        for (Thread thread : threads) {
-            thread.join();  // зависаем, ждём когда поток объект которого лежит в thread завершится
+        threadPool.shutdown();
+
+        int number = 0;
+        int currentNumber;
+//        После цикла с отправкой задач на исполнение пройдитесь циклом по Future и у каждого вызовите get для
+//        ожидания и получения результата, который вы обработаете для получения ответа на задачу.
+        for (Future<String> future : futures) {
+            String result = future.get();
+            System.out.println(result);
+            currentNumber = Integer.parseInt(result.substring(result.length() - 2));
+            if (currentNumber >= number) {
+                number = currentNumber;
+            }
         }
+        System.out.printf("Максимальноу число повтрений <а> %d раз\n", number);
+
         long endTs = System.currentTimeMillis(); // end time
         System.out.println("Time: " + (endTs - startTs) + "ms");
     }
